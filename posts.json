@@ -63,11 +63,13 @@
     "cropY": 34
   },
   {
-    "headline": "KRISTI NOEM FIRED",
+    "headline": "Kristi Noem Fired",
     "caption": "Kristi Noem was removed today as Secretary of the Department of Homeland Security, with Trump replacing her as Oklahoma Republican Senator Markwayne Mullin.\nHowever, Trump says he’ll be designating her as “Special Envoy for The Shield of the Americas,” his new security initiative in which he would be focusing on the Western Hemisphere.",
     "date": "2026-03-05",
     "url": "https://apnews.com/live/kristi-noem-markwayne-mullin-trump",
-    "image": "images/2026-03-05/1.png"
+    "image": "images/2026-03-05/12.png",
+    "cropX": 49,
+    "cropY": 48
   },
   {
     "headline": "US/ECUADOR TEAM UP",
