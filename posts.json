@@ -31,7 +31,9 @@
     "caption": "A federal trade judge ordered the Trump administration to begin building the refund process for overturned tariffs and outline how companies can reclaim billions. The administration is expected to appeal the decision as it moves to slow or potentially block the repayments.",
     "date": "2026-03-05",
     "url": "https://apnews.com/article/tariff-refunds-trump-customs-cpb-cit-1b3f44910b203b1e3be28ab56e5a76ca",
-    "image": "images/2026-03-05/5.png"
+    "image": "images/2026-03-05/8.png",
+    "cropX": 50,
+    "cropY": 52
   },
   {
     "headline": "POLAND’S NUCLEAR POSTURE",
