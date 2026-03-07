@@ -36,7 +36,9 @@
     "caption": "“Britain and France, neither of which is part of the assault on Iran that began on Saturday, announced they would use their navies and air forces to help blunt Iran’s retaliatory strikes. Greece also sent planes and warships to its neighbor, Cyprus.” - The New York Times",
     "date": "2026-03-05",
     "url": "https://www.nytimes.com/2026/03/04/world/middleeast/european-nations-armed-forces-mideast-iran.html",
-    "image": "images/2026-03-05/2.png"
+    "image": "images/2026-03-05/2.png",
+    "cropX": 50,
+    "cropY": 34
   },
   {
     "headline": "KRISTI NOEM FIRED",
