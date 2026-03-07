@@ -72,11 +72,13 @@
     "cropY": 48
   },
   {
-    "headline": "US/ECUADOR TEAM UP",
+    "headline": "U.S./Ecuador Team Up",
     "caption": "The United States and Ecuador are preparing joint operations targeting powerful drug gangs behind a surge of violence across the country. U.S. forces have been deployed, but will NOT participate in the missions, and instead only provide intelligence, surveillance and logistical support while Ecuadorian forces carry out the raids tied to cocaine shipments moving through Ecuador’s ports.",
     "date": "2026-03-05",
     "url": "https://www.newsweek.com/us-launches-military-action-in-ecuador-what-to-know-11616732",
-    "image": "post_1772854023514.png"
+    "image": "images/2026-03-05/13.png",
+    "cropX": 50,
+    "cropY": 51
   },
   {
     "headline": "IRAN SHUTS STRAIT OF HORMUZ",
