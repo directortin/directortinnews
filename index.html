@@ -61,9 +61,9 @@
       </div>
       <div class="date-filters">
         <label>From</label>
-        <input type="date" id="dateFrom" onchange="filterCards()">
+        <input type="date" id="dateFrom" onchange="onDateFromChange()">
         <span class="date-sep">→</span>
-        <input type="date" id="dateTo" onchange="filterCards()">
+        <input type="date" id="dateTo" onchange="onDateToChange()">
       </div>
     </div>
     <div class="posts-header">
@@ -143,6 +143,56 @@
     }, { rootMargin: '800px' });
     observer.observe(sentinel);
 
+    // Returns today as YYYY-MM-DD
+    function todayISO() {
+      const d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    }
+
+    // Smart-correct a date value:
+    // - If it's in the future, pull the year back until it isn't (or use today)
+    // - If only month+day were likely intended (year defaulted to current but is future), use last year
+    function smartCorrect(val) {
+      if (!val) return val;
+      const today = todayISO();
+      if (val <= today) return val;
+      // Year is in the future — try last year
+      const parts = val.split('-');
+      const corrected = (parseInt(parts[0]) - 1) + '-' + parts[1] + '-' + parts[2];
+      return corrected <= today ? corrected : today;
+    }
+
+    function onDateFromChange() {
+      const el    = document.getElementById('dateFrom');
+      const toEl  = document.getElementById('dateTo');
+      let val     = el.value;
+      if (!val) { filterCards(); return; }
+      val         = smartCorrect(val);
+      el.value    = val;
+      // If "from" is after "to", push "to" forward to match
+      if (toEl.value && val > toEl.value) toEl.value = val;
+      filterCards();
+    }
+
+    function onDateToChange() {
+      const el      = document.getElementById('dateTo');
+      const fromEl  = document.getElementById('dateFrom');
+      let val       = el.value;
+      if (!val) { filterCards(); return; }
+      val           = smartCorrect(val);
+      el.value      = val;
+      // If "to" is before "from", pull "from" back to match
+      if (fromEl.value && val < fromEl.value) fromEl.value = val;
+      filterCards();
+    }
+
+    // Set max=today on both date inputs so the picker never shows future dates
+    function initDateInputs() {
+      const today = todayISO();
+      document.getElementById('dateFrom').max = today;
+      document.getElementById('dateTo').max   = today;
+    }
+
     function filterCards() {
       const query = document.getElementById('searchInput').value.toLowerCase();
       const from  = document.getElementById('dateFrom').value;
@@ -167,7 +217,7 @@
 
     fetch('posts.json?t=' + Date.now())
       .then(r => r.json())
-      .then(posts => { allPosts = posts; renderPosts(posts); })
+      .then(posts => { allPosts = posts; initDateInputs(); renderPosts(posts); })
       .catch(() => {});
   </script>
 </body>
