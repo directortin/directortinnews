@@ -37,6 +37,8 @@
     .card { display: block; text-decoration: none; color: inherit; background: #0a2240; border-radius: 8px; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease; }
     .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
     .card img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: rgba(255,255,255,0.06); }
+    .card img.lazy { opacity: 0; transition: opacity 0.3s ease; }
+    .card img.lazy-loaded { opacity: 1; }
     .load-more-sentinel { height: 1px; width: 100%; }
     .load-more-spinner { display: none; text-align: center; color: rgba(255,255,255,0.3); font-family: "Inter", sans-serif; font-size: 0.78rem; padding: 24px 0; width: 100%; letter-spacing: 0.05em; }
     .card-body { padding: 12px 14px 14px; }
@@ -61,9 +63,9 @@
       </div>
       <div class="date-filters">
         <label>From</label>
-        <input type="date" id="dateFrom" onchange="onDateFromChange()">
+        <input type="date" id="dateFrom" onchange="onDateFromChange()" onkeydown="return false">
         <span class="date-sep">→</span>
-        <input type="date" id="dateTo" onchange="onDateToChange()">
+        <input type="date" id="dateTo" onchange="onDateToChange()" onkeydown="return false">
       </div>
     </div>
     <div class="posts-header">
@@ -103,7 +105,7 @@
       a.href      = post.url;
       a.target    = '_blank';
       a.innerHTML = `
-        <img src="${post.image}" alt="Post image" style="object-position:${post.cropX ?? 50}% ${post.cropY ?? 50}%">
+        <img class="lazy" data-src="${post.image}" alt="Post image" style="object-position:${post.cropX ?? 50}% ${post.cropY ?? 50}%">
         <div class="card-body">
           <p class="card-date">${formatDisplay(post.date)}</p>
           <p class="card-headline">${post.headline}</p>
@@ -132,16 +134,34 @@
       batch.forEach(post => frag.appendChild(makeCard(post)));
       grid.appendChild(frag);
       renderedCount += batch.length;
+      observeLazyImages(grid);
       document.getElementById('loadSpinner').style.display =
         renderedCount < visiblePosts.length ? 'block' : 'none';
     }
 
-    // Fire early — load next batch well before user hits bottom
+    // Infinite scroll observer
     const sentinel = document.getElementById('loadSentinel');
     const observer = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) appendNextPage();
     }, { rootMargin: '800px' });
     observer.observe(sentinel);
+
+    // Lazy image loader — fires when image is 200px from entering viewport
+    const imgObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          img.onload  = () => img.classList.add('lazy-loaded');
+          img.onerror = () => img.classList.add('lazy-loaded'); // show broken gracefully too
+          imgObserver.unobserve(img);
+        }
+      });
+    }, { rootMargin: '300px' });
+
+    function observeLazyImages(container) {
+      container.querySelectorAll('img.lazy').forEach(img => imgObserver.observe(img));
+    }
 
     // Returns today as YYYY-MM-DD
     function todayISO() {
