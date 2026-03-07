@@ -81,11 +81,13 @@
     "cropY": 51
   },
   {
-    "headline": "IRAN SHUTS STRAIT OF HORMUZ",
+    "headline": "Iran Shuts Off Strait of Hormuz",
     "caption": "The war between the U.S., Israel and Iran has severely disrupted shipping through the Strait of Hormuz, a critical global trade route, leaving thousands of oil tankers and cargo vessels stranded. Iran says it has shut the narrow waterway and warned it will attack any ships attempting to pass through it.",
     "date": "2026-03-05",
     "url": "https://www.reuters.com/world/middle-east/iran-vows-attack-any-ship-trying-pass-through-strait-hormuz-2026-03-02/",
-    "image": "post_1772853984116.png"
+    "image": "images/2026-03-05/14.png",
+    "cropX": 50,
+    "cropY": 50
   },
   {
     "headline": "SENATE VOTES AGAINST ENDING IRAN WAR",
