@@ -117,10 +117,12 @@
     "cropY": 50
   },
   {
-    "headline": "TALARICO WINS DEM NOMINATION",
+    "headline": "Talarico Wins Texas Democratic Nomination",
     "caption": "Texas state Rep. James Talarico has won the Democratic nomination for U.S. Senate in Texas. He will face the Republican nominee in November in a race that could become one of the most closely watched Senate contests of 2026.",
     "date": "2026-03-04",
     "url": "https://19thnews.org/2026/03/texas-us-senate-primary-election-results-2026/",
-    "image": "post_1772851254634.png"
+    "image": "images/2026-03-04/7.png",
+    "cropX": 50,
+    "cropY": 50
   }
 ]
