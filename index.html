@@ -35,7 +35,9 @@
     @media (min-width: 900px) { .grid { grid-template-columns: repeat(4, 1fr); } }
     .card { display: block; text-decoration: none; color: inherit; background: #0a2240; border-radius: 8px; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease; }
     .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
-    .card img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; }
+    .card img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: rgba(255,255,255,0.06); }
+    .load-more-sentinel { height: 1px; width: 100%; }
+    .load-more-spinner { display: none; text-align: center; color: rgba(255,255,255,0.3); font-family: "Inter", sans-serif; font-size: 0.78rem; padding: 24px 0; width: 100%; letter-spacing: 0.05em; }
     .card-body { padding: 12px 14px 14px; }
     .card-date { font-family: "Inter", sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
     .card-headline { font-family: "Inter", sans-serif; font-weight: 600; font-size: 0.82rem; line-height: 1.4; color: #fff; }
@@ -73,65 +75,87 @@
     <div class="grid" id="grid">
       <p class="no-results" id="noResults">No posts match your search.</p>
     </div>
+    <div class="load-more-spinner" id="loadSpinner">Loading more posts...</div>
+    <div class="load-more-sentinel" id="loadSentinel"></div>
   </div>
   <script>
-    let allPosts = [];
+    let allPosts     = [];
+    let visiblePosts = [];  // current filtered set
+    let renderedCount = 0;
+    const PAGE_SIZE   = 20;
 
     function formatDisplay(isoDate) {
       const p = isoDate.split('-');
       return p[1] + '/' + p[2] + '/' + p[0];
     }
 
+    function makeCard(post) {
+      const captionHtml = post.caption ? `<p class="card-caption">${post.caption}</p>` : '';
+      const a = document.createElement('a');
+      a.className = 'card';
+      a.href      = post.url;
+      a.target    = '_blank';
+      a.innerHTML = `
+        <img src="${post.image}" alt="Post image" loading="lazy" style="object-position:${post.cropX ?? 50}% ${post.cropY ?? 50}%">
+        <div class="card-body">
+          <p class="card-date">${formatDisplay(post.date)}</p>
+          <p class="card-headline">${post.headline}</p>
+          ${captionHtml}
+        </div>`;
+      return a;
+    }
+
     function renderPosts(posts) {
       const grid = document.getElementById('grid');
-      const noResults = document.getElementById('noResults');
-      const existing = grid.querySelectorAll('.card');
-      existing.forEach(c => c.remove());
+      // Remove existing cards
+      grid.querySelectorAll('.card').forEach(c => c.remove());
+      visiblePosts  = posts;
+      renderedCount = 0;
+      document.getElementById('noResults').style.display = posts.length === 0 ? 'block' : 'none';
+      appendNextPage();
+    }
 
-      if (posts.length === 0) {
-        noResults.style.display = 'block';
+    function appendNextPage() {
+      if (renderedCount >= visiblePosts.length) {
+        document.getElementById('loadSpinner').style.display = 'none';
         return;
       }
-      noResults.style.display = 'none';
-
-      posts.forEach(post => {
-        const captionHtml = post.caption ? `<p class="card-caption">${post.caption}</p>` : '';
-        const a = document.createElement('a');
-        a.className = 'card';
-        a.href = post.url;
-        a.target = '_blank';
-        a.dataset.headline = (post.headline || '').toLowerCase();
-        a.dataset.date = post.date || '';
-        a.innerHTML = `
-          <img src="${post.image}" alt="Post image" style="object-position:${post.cropX ?? 50}% ${post.cropY ?? 50}%">
-          <div class="card-body">
-            <p class="card-date">${formatDisplay(post.date)}</p>
-            <p class="card-headline">${post.headline}</p>
-            ${captionHtml}
-          </div>`;
-        grid.appendChild(a);
-      });
+      const grid  = document.getElementById('grid');
+      const batch = visiblePosts.slice(renderedCount, renderedCount + PAGE_SIZE);
+      const frag  = document.createDocumentFragment();
+      batch.forEach(post => frag.appendChild(makeCard(post)));
+      grid.appendChild(frag);
+      renderedCount += batch.length;
+      document.getElementById('loadSpinner').style.display =
+        renderedCount < visiblePosts.length ? 'block' : 'none';
     }
+
+    // Infinite scroll via IntersectionObserver
+    const sentinel = document.getElementById('loadSentinel');
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) appendNextPage();
+    }, { rootMargin: '200px' });
+    observer.observe(sentinel);
 
     function filterCards() {
       const query = document.getElementById('searchInput').value.toLowerCase();
-      const from = document.getElementById('dateFrom').value;
-      const to = document.getElementById('dateTo').value;
+      const from  = document.getElementById('dateFrom').value;
+      const to    = document.getElementById('dateTo').value;
       const filtered = allPosts.filter(post => {
         const matchSearch = !query
           || (post.headline || '').toLowerCase().includes(query)
           || (post.caption  || '').toLowerCase().includes(query);
         const matchFrom = !from || post.date >= from;
-        const matchTo = !to || post.date <= to;
+        const matchTo   = !to   || post.date <= to;
         return matchSearch && matchFrom && matchTo;
       });
       renderPosts(filtered);
     }
 
     function clearFilters() {
-      document.getElementById('searchInput').value = '';
-      document.getElementById('dateFrom').value = '';
-      document.getElementById('dateTo').value = '';
+      document.getElementById('searchInput').value  = '';
+      document.getElementById('dateFrom').value     = '';
+      document.getElementById('dateTo').value       = '';
       renderPosts(allPosts);
     }
 
