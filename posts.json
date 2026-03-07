@@ -108,11 +108,13 @@
     "cropY": 50
   },
   {
-    "headline": "US SINKS IRANIAN WARSHIP & NATO DESTROYS MISSILE HEADED FOR TURKEY",
+    "headline": "U.S. Sinks Iran Warship & NATO Strikes Missile Headed For Turkey",
     "caption": "A U.S. submarine sank an Iranian warship near Sri Lanka, killing at least 80 people, while NATO air defenses intercepted and destroyed an Iranian ballistic missile launched toward Turkey.",
     "date": "2026-03-04",
     "url": "https://www.stabroeknews.com/2026/03/05/news/world/us-sinks-iranian-warship-far-from-gulf-nato-downs-iranian-missile-heading-for-turkey/",
-    "image": "post_1772851407864.png"
+    "image": "post_1772851407864.png",
+    "cropX": 50,
+    "cropY": 50
   },
   {
     "headline": "TALARICO WINS DEM NOMINATION",
