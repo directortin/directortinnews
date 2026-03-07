@@ -1,4 +1,4 @@
-# Director Tin — Claude Context
+# Director Tin Context - Written for Claude
 
 ## About the site
 The owner runs an Instagram and TikTok news page called Director Tin (@directortin). They post images of news stories on social media, and this website exists so followers can find the full article behind each post. Each card on the site shows the post image, a headline, an optional caption summary, the date, and a link to the full news article. The site URL lives in the Instagram and TikTok bios.
