@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=500, initial-scale=1.0, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Director Tin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@300;400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -18,10 +18,11 @@
     .search-box svg { flex-shrink: 0; opacity: 0.5; }
     .search-box input { background: none; border: none; outline: none; color: #fff; font-family: "Inter", sans-serif; font-size: 0.88rem; width: 100%; padding: 12px 0; }
     .search-box input::placeholder { color: rgba(255,255,255,0.35); }
-    .date-filters { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; }
-    .date-filters label { font-family: "Inter", sans-serif; font-size: 0.75rem; color: rgba(255,255,255,0.5); white-space: nowrap; }
-    .date-filters input[type="date"] { flex: 1; min-width: 0; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; font-family: "Inter", sans-serif; font-size: 0.78rem; padding: 9px 8px; outline: none; cursor: pointer; }
-    .date-filters input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; cursor: pointer; }
+    .date-filters { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
+    .date-filters label { font-family: "Inter", sans-serif; font-size: 0.75rem; color: rgba(255,255,255,0.5); white-space: nowrap; flex-shrink: 0; }
+    .date-filters select { flex: 1; min-width: 0; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; font-family: "Inter", sans-serif; font-size: 0.75rem; padding: 9px 6px; outline: none; cursor: pointer; appearance: none; -webkit-appearance: none; text-align: center; }
+    .date-filters select option { background: #0d2b4a; color: #fff; }
+    .date-sep { color: rgba(255,255,255,0.25); font-size: 0.75rem; flex-shrink: 0; }
     .clear-btn { flex-shrink: 0; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: rgba(255,255,255,0.6); font-family: "Inter", sans-serif; font-size: 0.78rem; padding: 9px 14px; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
     .clear-btn:hover { background: rgba(255,255,255,0.15); }
     .search-btn { flex-shrink: 0; background: #2a6aad; border: none; border-radius: 8px; color: #fff; font-family: "Inter", sans-serif; font-size: 0.78rem; font-weight: 600; padding: 9px 14px; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
@@ -59,9 +60,11 @@
       </div>
       <div class="date-filters">
         <label>From</label>
-        <input type="date" id="dateFrom">
-        <label>To</label>
-        <input type="date" id="dateTo">
+        <select id="dateFromMonth"><option value="">Month</option></select>
+        <select id="dateFromYear"><option value="">Year</option></select>
+        <span class="date-sep">→</span>
+        <select id="dateToMonth"><option value="">Month</option></select>
+        <select id="dateToYear"><option value="">Year</option></select>
         <button class="search-btn" onclick="filterCards()">Search</button>
         <button class="clear-btn" onclick="clearFilters()">Clear</button>
       </div>
@@ -80,13 +83,45 @@
   </div>
   <script>
     let allPosts     = [];
-    let visiblePosts = [];  // current filtered set
+    let visiblePosts = [];
     let renderedCount = 0;
     const PAGE_SIZE   = 20;
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
     function formatDisplay(isoDate) {
       const p = isoDate.split('-');
       return p[1] + '/' + p[2] + '/' + p[0];
+    }
+
+    function populateDateSelects(posts) {
+      const years = [...new Set(posts.map(p => p.date ? p.date.substring(0, 4) : null).filter(Boolean))].sort();
+      ['dateFromYear','dateToYear'].forEach(id => {
+        const sel = document.getElementById(id);
+        sel.innerHTML = '<option value="">Year</option>';
+        years.forEach(y => { const o = document.createElement('option'); o.value = y; o.textContent = y; sel.appendChild(o); });
+      });
+      ['dateFromMonth','dateToMonth'].forEach(id => {
+        const sel = document.getElementById(id);
+        sel.innerHTML = '<option value="">Month</option>';
+        MONTHS.forEach((m, i) => { const o = document.createElement('option'); o.value = String(i + 1).padStart(2,'0'); o.textContent = m; sel.appendChild(o); });
+      });
+    }
+
+    function getFromDate() {
+      const y = document.getElementById('dateFromYear').value;
+      const m = document.getElementById('dateFromMonth').value;
+      if (!y) return '';
+      return y + '-' + (m || '01') + '-01';
+    }
+
+    function getToDate() {
+      const y = document.getElementById('dateToYear').value;
+      const m = document.getElementById('dateToMonth').value;
+      if (!y) return '';
+      // Last day of selected month (or Dec if no month)
+      const month = m ? parseInt(m) : 12;
+      const lastDay = new Date(parseInt(y), month, 0).getDate();
+      return y + '-' + String(month).padStart(2,'0') + '-' + lastDay;
     }
 
     function makeCard(post) {
@@ -107,7 +142,6 @@
 
     function renderPosts(posts) {
       const grid = document.getElementById('grid');
-      // Remove existing cards
       grid.querySelectorAll('.card').forEach(c => c.remove());
       visiblePosts  = posts;
       renderedCount = 0;
@@ -130,17 +164,17 @@
         renderedCount < visiblePosts.length ? 'block' : 'none';
     }
 
-    // Infinite scroll via IntersectionObserver
+    // Fire early — load next batch well before user hits bottom
     const sentinel = document.getElementById('loadSentinel');
     const observer = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) appendNextPage();
-    }, { rootMargin: '200px' });
+    }, { rootMargin: '800px' });
     observer.observe(sentinel);
 
     function filterCards() {
       const query = document.getElementById('searchInput').value.toLowerCase();
-      const from  = document.getElementById('dateFrom').value;
-      const to    = document.getElementById('dateTo').value;
+      const from  = getFromDate();
+      const to    = getToDate();
       const filtered = allPosts.filter(post => {
         const matchSearch = !query
           || (post.headline || '').toLowerCase().includes(query)
@@ -153,18 +187,17 @@
     }
 
     function clearFilters() {
-      document.getElementById('searchInput').value  = '';
-      document.getElementById('dateFrom').value     = '';
-      document.getElementById('dateTo').value       = '';
+      document.getElementById('searchInput').value       = '';
+      document.getElementById('dateFromMonth').value     = '';
+      document.getElementById('dateFromYear').value      = '';
+      document.getElementById('dateToMonth').value       = '';
+      document.getElementById('dateToYear').value        = '';
       renderPosts(allPosts);
     }
 
-    document.getElementById('dateFrom').addEventListener('change', filterCards);
-    document.getElementById('dateTo').addEventListener('change', filterCards);
-
     fetch('posts.json?t=' + Date.now())
       .then(r => r.json())
-      .then(posts => { allPosts = posts; renderPosts(posts); })
+      .then(posts => { allPosts = posts; populateDateSelects(posts); renderPosts(posts); })
       .catch(() => {});
   </script>
 </body>
