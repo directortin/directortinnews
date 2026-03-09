@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Director Tin</title>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SSSYDMTPSL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-SSSYDMTPSL');
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@300;400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
@@ -20,25 +28,26 @@
     .search-box svg { flex-shrink: 0; opacity: 0.5; }
     .search-box input { background: none; border: none; outline: none; color: #fff; font-family: "Inter", sans-serif; font-size: 0.88rem; width: 100%; padding: 12px 0; }
     .search-box input::placeholder { color: rgba(255,255,255,0.35); }
-    .search-box .clear-btn { margin: 5px 0; }
-    .date-filters { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; }
+    .search-box .search-btn, .search-box .clear-btn { margin: 5px 0; }
+    .date-filters { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
     .date-filters label { font-family: "Inter", sans-serif; font-size: 0.75rem; color: rgba(255,255,255,0.5); white-space: nowrap; flex-shrink: 0; }
-    .date-filters input[type="date"] { flex: 1; min-width: 0; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; font-family: "Inter", sans-serif; font-size: 0.75rem; padding: 9px 10px; outline: none; cursor: pointer; color-scheme: dark; }
+    .date-filters select { flex: 1; min-width: 0; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; font-family: "Inter", sans-serif; font-size: 0.75rem; padding: 9px 6px; outline: none; cursor: pointer; appearance: none; -webkit-appearance: none; text-align: center; }
+    .date-filters select option { background: #0d2b4a; color: #fff; }
     .date-sep { color: rgba(255,255,255,0.25); font-size: 0.75rem; flex-shrink: 0; }
     .clear-btn { flex-shrink: 0; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: rgba(255,255,255,0.6); font-family: "Inter", sans-serif; font-size: 0.78rem; padding: 9px 14px; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
     .clear-btn:hover { background: rgba(255,255,255,0.15); }
+    .search-btn { flex-shrink: 0; background: #2a6aad; border: none; border-radius: 8px; color: #fff; font-family: "Inter", sans-serif; font-size: 0.78rem; font-weight: 600; padding: 9px 14px; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+    .search-btn:hover { background: #3378c0; }
     .posts-header { margin-top: 24px; width: 100%; max-width: 1100px; display: flex; align-items: center; gap: 12px; }
     .posts-header::before, .posts-header::after { content: ""; flex: 1; height: 1px; background-color: rgba(255,255,255,0.25); }
     .posts-label { display: flex; align-items: center; gap: 7px; font-family: "Inter", sans-serif; font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.5); white-space: nowrap; }
     .no-results { display: none; text-align: center; color: rgba(255,255,255,0.4); font-family: "Inter", sans-serif; font-size: 0.9rem; padding: 48px 0; width: 100%; }
-    .grid { margin-top: 24px; width: 100%; max-width: 1100px; display: grid; grid-template-columns: repeat(, 1fr); gap: 16px; opacity: 0; animation: fadeUp 0.8s ease 0.65s forwards; }
+    .grid { margin-top: 24px; width: 100%; max-width: 1100px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; opacity: 0; animation: fadeUp 0.8s ease 0.65s forwards; }
     @media (min-width: 600px) { .grid { grid-template-columns: repeat(3, 1fr); } }
     @media (min-width: 900px) { .grid { grid-template-columns: repeat(4, 1fr); } }
     .card { display: block; text-decoration: none; color: inherit; background: #0a2240; border-radius: 8px; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease; }
     .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
     .card img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: rgba(255,255,255,0.06); }
-    .card img.lazy { opacity: 0; transition: opacity 0.3s ease; }
-    .card img.lazy-loaded { opacity: 1; }
     .load-more-sentinel { height: 1px; width: 100%; }
     .load-more-spinner { display: none; text-align: center; color: rgba(255,255,255,0.3); font-family: "Inter", sans-serif; font-size: 0.78rem; padding: 24px 0; width: 100%; letter-spacing: 0.05em; }
     .card-body { padding: 12px 14px 14px; }
@@ -58,14 +67,17 @@
     <div class="controls">
       <div class="search-box">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="searchInput" placeholder="Search headlines and captions..." oninput="debounceFilter()">
+        <input type="text" id="searchInput" placeholder="Search headlines and captions..." onkeydown="if(event.key==='Enter') filterCards()">
+        <button class="search-btn" onclick="filterCards()">Search</button>
         <button class="clear-btn" onclick="clearFilters()">Clear</button>
       </div>
       <div class="date-filters">
         <label>From</label>
-        <input type="date" id="dateFrom" onchange="onDateFromChange()" onkeydown="return false">
+        <select id="dateFromMonth"><option value="">Month</option></select>
+        <select id="dateFromYear"><option value="">Year</option></select>
         <span class="date-sep">→</span>
-        <input type="date" id="dateTo" onchange="onDateToChange()" onkeydown="return false">
+        <select id="dateToMonth"><option value="">Month</option></select>
+        <select id="dateToYear"><option value="">Year</option></select>
       </div>
     </div>
     <div class="posts-header">
@@ -92,10 +104,34 @@
       return p[1] + '/' + p[2] + '/' + p[0];
     }
 
-    let debounceTimer;
-    function debounceFilter() {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(filterCards, 220);
+    function populateDateSelects(posts) {
+      const years = [...new Set(posts.map(p => p.date ? p.date.substring(0, 4) : null).filter(Boolean))].sort();
+      ['dateFromYear','dateToYear'].forEach(id => {
+        const sel = document.getElementById(id);
+        sel.innerHTML = '<option value="">Year</option>';
+        years.forEach(y => { const o = document.createElement('option'); o.value = y; o.textContent = y; sel.appendChild(o); });
+      });
+      ['dateFromMonth','dateToMonth'].forEach(id => {
+        const sel = document.getElementById(id);
+        sel.innerHTML = '<option value="">Month</option>';
+        MONTHS.forEach((m, i) => { const o = document.createElement('option'); o.value = String(i + 1).padStart(2,'0'); o.textContent = m; sel.appendChild(o); });
+      });
+    }
+
+    function getFromDate() {
+      const y = document.getElementById('dateFromYear').value;
+      const m = document.getElementById('dateFromMonth').value;
+      if (!y) return '';
+      return y + '-' + (m || '01') + '-01';
+    }
+
+    function getToDate() {
+      const y = document.getElementById('dateToYear').value;
+      const m = document.getElementById('dateToMonth').value;
+      if (!y) return '';
+      const month = m ? parseInt(m) : 12;
+      const lastDay = new Date(parseInt(y), month, 0).getDate();
+      return y + '-' + String(month).padStart(2,'0') + '-' + lastDay;
     }
 
     function makeCard(post) {
@@ -105,7 +141,7 @@
       a.href      = post.url;
       a.target    = '_blank';
       a.innerHTML = `
-        <img class="lazy" data-src="${post.image}" alt="Post image" style="object-position:${post.cropX ?? 50}% ${post.cropY ?? 50}%">
+        <img src="${post.image}" alt="Post image" loading="lazy" style="object-position:${post.cropX ?? 50}% ${post.cropY ?? 50}%">
         <div class="card-body">
           <p class="card-date">${formatDisplay(post.date)}</p>
           <p class="card-headline">${post.headline}</p>
@@ -134,64 +170,20 @@
       batch.forEach(post => frag.appendChild(makeCard(post)));
       grid.appendChild(frag);
       renderedCount += batch.length;
-      observeLazyImages(grid);
       document.getElementById('loadSpinner').style.display =
         renderedCount < visiblePosts.length ? 'block' : 'none';
     }
 
-    // Infinite scroll observer
     const sentinel = document.getElementById('loadSentinel');
     const observer = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) appendNextPage();
     }, { rootMargin: '800px' });
     observer.observe(sentinel);
 
-    // Lazy image loader — fires when image is 200px from entering viewport
-    const imgObserver = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const img = entry.target;
-          img.src = img.dataset.src;
-          img.onload  = () => img.classList.add('lazy-loaded');
-          img.onerror = () => img.classList.add('lazy-loaded'); // show broken gracefully too
-          imgObserver.unobserve(img);
-        }
-      });
-    }, { rootMargin: '300px' });
-
-    function observeLazyImages(container) {
-      container.querySelectorAll('img.lazy').forEach(img => imgObserver.observe(img));
-    }
-
-    function todayISO() {
-      const d = new Date();
-      return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-    }
-
-    function initDateInputs() {
-      const today = todayISO();
-      document.getElementById('dateFrom').max = today;
-      document.getElementById('dateTo').max   = today;
-    }
-
-    function onDateFromChange() {
-      const val = document.getElementById('dateFrom').value;
-      // Grey out everything before "from" in the "to" picker
-      document.getElementById('dateTo').min = val || '';
-      filterCards();
-    }
-
-    function onDateToChange() {
-      const val = document.getElementById('dateTo').value;
-      // Grey out everything after "to" in the "from" picker
-      document.getElementById('dateFrom').max = val || todayISO();
-      filterCards();
-    }
-
     function filterCards() {
       const query = document.getElementById('searchInput').value.toLowerCase();
-      const from  = document.getElementById('dateFrom').value;
-      const to    = document.getElementById('dateTo').value;
+      const from  = getFromDate();
+      const to    = getToDate();
       const filtered = allPosts.filter(post => {
         const matchSearch = !query
           || (post.headline || '').toLowerCase().includes(query)
@@ -204,15 +196,17 @@
     }
 
     function clearFilters() {
-      document.getElementById('searchInput').value = '';
-      document.getElementById('dateFrom').value    = '';
-      document.getElementById('dateTo').value      = '';
+      document.getElementById('searchInput').value       = '';
+      document.getElementById('dateFromMonth').value     = '';
+      document.getElementById('dateFromYear').value      = '';
+      document.getElementById('dateToMonth').value       = '';
+      document.getElementById('dateToYear').value        = '';
       renderPosts(allPosts);
     }
 
     fetch('posts.json?t=' + Date.now())
       .then(r => r.json())
-      .then(posts => { allPosts = posts; initDateInputs(); renderPosts(posts); })
+      .then(posts => { allPosts = posts; populateDateSelects(posts); renderPosts(posts); })
       .catch(() => {});
   </script>
 </body>
